@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="tiempo.css">
+    <title>Document</title>
+</head>
+<body>
+    <section class="top-banner">   <!--banner significa que es un banner superior de la pagina-->
+
+        <div class="container">   <!--definimos un contenedor para el banner-->
+      
+          <h1 class="heading">App de tiempo simple</h1>
+      
+          <form>
+      
+            <input type="text" placeholder="Busca una ciudad" autofocus>  <!--autofocus para que el cursor se ponga directamente ahi cuando se carge la pagina-->
+      
+            <button type="submit">BUSCAR</button>
+      
+            <span class="msg"></span>    <!--Para mostrar los resultados del formulario-->
+      
+          </form>
+      
+        </div>
+      </section>
+      
+      <section class="ajax-section">   <!--para mostrar resultados dinamicamente usamos ajax-->
+      
+        <div class="container">
+      
+          <ul class="cities"></ul>     <!--lista desordenada que se utilizara para mostrar ciudades. UL, es una LISTA DESORDENADA-->
+      
+        </div>
+      
+      </section>
+      <script src="./tiempo.js"></script>
+</body>
+</html>
+
+  
