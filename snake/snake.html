@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+</head>
+<body>
+    <div id="score">0</div>
+    <canvas id="gameCanvas" width="300" height="300">&lt;</canvas>            <!--canvas permite la generación de gráficos. el canvas predeterminadamente esta vacio-->
+    <div id = "gameOver"></div>
+    <button id = "restart">RESTART</button>
+    <style>
+        #gameCanvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    
+        #score {
+            text-align: center;
+            font-size: 140px;
+            font-family: 'Antic Slab', serif;
+        }
+
+        #gameOver{
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 50px;
+            font-family: 'Antic Slab', serif;
+        }
+
+        #restart {
+            position: absolute;
+            top: 90%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 50px;
+            font-family: 'Antic Slab', serif;
+        }
+        </style>
+</body>
+<script>
+
+    function createCanvas(){   //PARA CREAREL ESPACIO PARA NUESTRA SNAKE
+        ctx.fillStyle = "white"; // Establece el color de relleno en blanco
+        ctx.strokeStyle = "black"; // Establece el color del borde en negro
+        ctx.lineWidth = 1; // Establece el ancho del borde en 1 píxel
+        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height); 
+        ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);}// Dibuja el borde del rectángulo
+        //strokeRect(posicion en la q empieza horizontal, vertical, hasta donde de ancho, hasta donde de alto), tambien puede ser fillRect
+        //fillRect dibuja rectangulo lleno con el color de relleno actual, y strokeRect dibuja el rectangulo sin el relleno actual 
+
+    function clearCanvas(){   //PARA LIMPIAR NUESTRO ESPACIO
+        createCanvas();}
+
+    function drawSnakePart(snakePart) {    //dibujar lo que seria cada cuadrado del snake
+        ctx.fillStyle = 'lightgreen';  ctx.strokestyle = 'darkgreen';
+        ctx.fillRect(snakePart.x, snakePart.y, 10, 10);  ctx.strokeRect(snakePart.x, snakePart.y, 10, 10);}
+    
+    function changeDirection(event) {  const LEFT_KEY = 37;  const RIGHT_KEY = 39;  const UP_KEY = 38;  const DOWN_KEY = 40;  //todas las teclas tienen codigo especifico numerico, el de flecha izq 37...
+        const keyPressed = event.keyCode;   //con esto conseguimos el numero de la tecla presionada, si tocamos flecha izquierda nos daria el 37
+        const goingUp = dy === -10;  const goingDown = dy === 10;  const goingRight = dx === 10;  const goingLeft = dx === -10;  //se uliliza para ver donde se mueve la serpiente
+        //La razón de los ifs es evitar que la serpiente se gire bruscamente en sentido opuesto, lo cual provocaría que se devore a sí misma instantáneamente.
+        if (keyPressed === LEFT_KEY && !goingRight) {    dx = -10;    dy = 0;  }  
+        if (keyPressed === UP_KEY && !goingDown) {    dx = 0;    dy = -10;  }
+        if (keyPressed === RIGHT_KEY && !goingLeft) {    dx = 10;    dy = 0;  }
+        if (keyPressed === DOWN_KEY && !goingUp) {    dx = 0;    dy = 10;  }}
+        
+
+    function drawSnake() {  snake.forEach(drawSnakePart);}   //dibujamos la snake entera
+
+    function advanceSnake(){   const head = {x: snake[0].x + dx, y:snake[0].y + dy}   //cabeza de la serpiente
+        snake.unshift(head)   //se añade al principio de la serpiente, es decir, pasa a ser la nueva cabeza, si come se mantiene y sino se elimina lo añadido 
+        const didEatFood = snake[0].x === foodX && snake[0].y === foodY;  //verificamos si la cabeza ha alcanzado la comida comparando las coordenadas, booleano
+        if (didEatFood) { score += 10; document.getElementById('score').innerHTML = score; createFood();} else{ snake.pop(); }}  
+        //si cumple, creamos otra comida y dejamos una parte mas, sino dejamos la comida y le quitamos parte de la serpiente para que quede como antes
+
+    function randomTen(min, max) {  return Math.round((Math.random() * (max-min) + min) / 10) * 10;}   //para generar un numero random, lo llama createFood
+
+    function createFood() {  foodX = randomTen(0, gameCanvas.width - 10);  foodY = randomTen(0, gameCanvas.height - 10);   //crea coordenadas aleatorias para la comida
+    //vemos SI la comida la ponemos donde esta la serpiente, y si lo hacemos creamos otra comida
+        snake.forEach(function isFoodOnSnake(part) {   
+            const foodIsOnSnake = part.x == foodX && part.y == foodY  //si la coordinada es la misma 
+            if(foodIsOnSnake)  createFood();  });} 
+            
+    //dibujamos la comida
+    function drawFood() {ctx.fillStyle = 'red'; ctx.strokestyle = 'darkred'; ctx.fillRect(foodX, foodY, 10, 10); ctx.strokeRect(foodX, foodY, 10, 10);}
+    
+    function didGameEnd(){
+        for(let i = 4; i < snake.length; i++){
+        if(snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true}
+        const hitLeftWall = snake[0].x < 0;
+        const hitRightWall = snake[0].x > gameCanvas.width - 10; 
+        const hitToptWall = snake[0].y < 0;  
+        const hitBottomWall = snake[0].y > gameCanvas.height - 10;
+        return hitLeftWall || hitRightWall || hitToptWall || hitBottomWall }
+    
+    function restart() {        
+        //ponemos todas las variables como al principio
+        snake = [  {x: 150, y: 150},  {x: 140, y: 150},  {x: 130, y: 150},  {x: 120, y: 150},  {x: 110, y: 150},];  //posicion inicial de mi snake
+        dx = 10;
+        dy = 0;
+        score = 0;
+        document.getElementById('score').innerText = score;
+        document.getElementById('gameOver').innerText = '';
+        createCanvas();
+        createFood();
+        main();
+    }
+    
+    function main() {  
+        if (didGameEnd()){ 
+            document.getElementById('score').innerText = 'GAME OVER';
+            document.getElementById('gameOver').innerText = "Final Score: "+ score;
+            return};
+         setTimeout(function onTick() { clearCanvas(); drawFood(); advanceSnake();  drawSnake();  main();  }, 100)}
+    
+    const gameCanvas = document.getElementById('gameCanvas'); //cogemos el elemento de canvas
+    const ctx = gameCanvas.getContext('2d');      //define el contexto de dibujo asociado al lienzo, en este caso 2d
+
+    createCanvas();
+        
+    let snake = [  {x: 150, y: 150},  {x: 140, y: 150},  {x: 130, y: 150},  {x: 120, y: 150},  {x: 110, y: 150},];  //posicion inicial de mi snake
+
+    let dx = 10;    //le ponemos asi, para que siempre que empiece una partida se mueva para la derecha por defecto
+    let dy = 0;
+
+    let score = 0;
+
+    createFood();
+    main();
+
+    document.addEventListener("keydown", changeDirection);  //keydown -> cuando se toca cualquier tecla del teclado
+    document.getElementById("restart").addEventListener("click", restart);
+    document.addEventListener("keydown", function (event) {
+        if (event.keyCode === 13) {
+            restart();
+        }
+    });
+    
+</script>
+</html>
